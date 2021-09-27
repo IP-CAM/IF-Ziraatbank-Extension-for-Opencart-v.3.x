@@ -89,10 +89,10 @@ class ControllerExtensionPaymentIfZiraatbank extends Controller
             $data['payment_if_ziraatbank_test'] = $this->config->get('payment_if_ziraatbank_test');
         }
 
-        if (isset($this->request->post['payment_if_ziraatbank_transaction'])) {
-            $data['payment_if_ziraatbank_transaction'] = $this->request->post['payment_if_ziraatbank_transaction'];
+        if (isset($this->request->post['payment_if_ziraatbank_order_status_id'])) {
+            $data['payment_if_ziraatbank_order_status_id'] = $this->request->post['payment_if_ziraatbank_order_status_id'];
         } else {
-            $data['payment_if_ziraatbank_transaction'] = $this->config->get('payment_if_ziraatbank_transaction');
+            $data['payment_if_ziraatbank_order_status_id'] = $this->config->get('payment_if_ziraatbank_order_status_id');
         }
 
         if (isset($this->request->post['payment_if_ziraatbank_total'])) {
@@ -101,30 +101,10 @@ class ControllerExtensionPaymentIfZiraatbank extends Controller
             $data['payment_if_ziraatbank_total'] = $this->config->get('payment_if_ziraatbank_total');
         }
 
-        if (isset($this->request->post['payment_if_ziraatbank_order_status_id'])) {
-            $data['payment_if_ziraatbank_order_status_id'] = $this->request->post['payment_if_ziraatbank_order_status_id'];
+        if (isset($this->request->post['payment_if_ziraatbank_installment'])) {
+            $data['payment_if_ziraatbank_installment'] = $this->request->post['payment_if_ziraatbank_installment'];
         } else {
-            $data['payment_if_ziraatbank_order_status_id'] = $this->config->get('payment_if_ziraatbank_order_status_id');
-        }
-
-        $this->load->model('localisation/order_status');
-
-        $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
-
-        if (isset($this->request->post['payment_if_ziraatbank_geo_zone_id'])) {
-            $data['payment_if_ziraatbank_geo_zone_id'] = $this->request->post['payment_if_ziraatbank_geo_zone_id'];
-        } else {
-            $data['payment_if_ziraatbank_geo_zone_id'] = $this->config->get('payment_if_ziraatbank_geo_zone_id');
-        }
-
-        $this->load->model('localisation/geo_zone');
-
-        $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
-
-        if (isset($this->request->post['payment_if_ziraatbank_status'])) {
-            $data['payment_if_ziraatbank_status'] = $this->request->post['payment_if_ziraatbank_status'];
-        } else {
-            $data['payment_if_ziraatbank_status'] = $this->config->get('payment_if_ziraatbank_status');
+            $data['payment_if_ziraatbank_installment'] = $this->config->get('payment_if_ziraatbank_installment');
         }
 
         if (isset($this->request->post['payment_if_ziraatbank_sort_order'])) {
@@ -132,6 +112,24 @@ class ControllerExtensionPaymentIfZiraatbank extends Controller
         } else {
             $data['payment_if_ziraatbank_sort_order'] = $this->config->get('payment_if_ziraatbank_sort_order');
         }
+
+        if (isset($this->request->post['payment_if_ziraatbank_geo_zone_id'])) {
+            $data['payment_if_ziraatbank_geo_zone_id'] = $this->request->post['payment_if_ziraatbank_geo_zone_id'];
+        } else {
+            $data['payment_if_ziraatbank_geo_zone_id'] = $this->config->get('payment_if_ziraatbank_geo_zone_id');
+        }
+
+        if (isset($this->request->post['payment_if_ziraatbank_status'])) {
+            $data['payment_if_ziraatbank_status'] = $this->request->post['payment_if_ziraatbank_status'];
+        } else {
+            $data['payment_if_ziraatbank_status'] = $this->config->get('payment_if_ziraatbank_status');
+        }
+
+        $this->load->model('localisation/order_status');
+        $this->load->model('localisation/geo_zone');
+
+        $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+        $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');

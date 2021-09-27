@@ -14,6 +14,7 @@ $_['entry_licence_key'] = 'Lisans Anahtarı';
 $_['entry_store_key'] = 'Mağaza Anahtarı';
 $_['entry_test'] = 'Test Modu';
 $_['entry_total'] = 'Toplam Sipariş Tutarı';
+$_['entry_installment'] = 'Installment Options';
 $_['entry_order_status'] = 'Sipariş Durumu';
 $_['entry_geo_zone'] = 'Coğrafi Bölge';
 $_['entry_status'] = 'Durum';
@@ -23,6 +24,7 @@ $_['entry_sort_order'] = 'Sıralama';
 $_['help_payment_method'] = 'Sipariş tutarı müşteriden hangi yöntem ile alınacak.';
 $_['help_test'] = 'Test amaçlı işlemler yapacaksanız işaretleyiniz.';
 $_['help_total'] = 'Toplam sipariş miktarına göre ödeme yönteminin aktif olmasını sağlayabilirsiniz.';
+$_['help_installment'] = 'Taksit seçeneklerini virgül ile ayırarak yazınız, ör: 2,3,4,5,6';
 
 // Error
 $_['error_permission'] = 'Uyarı: IF Ziraatbank eklentisine ait ayarları değiştirme yetkiniz bulunmuyor!';

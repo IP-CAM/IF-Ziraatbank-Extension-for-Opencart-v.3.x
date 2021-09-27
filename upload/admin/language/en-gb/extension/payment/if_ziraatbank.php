@@ -14,6 +14,7 @@ $_['entry_licence_key'] = 'License Key';
 $_['entry_store_key'] = 'Store Key';
 $_['entry_test'] = 'Test Mode';
 $_['entry_total'] = 'Total';
+$_['entry_installment'] = 'Taksit Seçenekleri';
 $_['entry_order_status'] = 'Order Status';
 $_['entry_geo_zone'] = 'Geo Zone';
 $_['entry_status'] = 'Status';
@@ -23,6 +24,7 @@ $_['entry_sort_order'] = 'Sort Order';
 $_['help_payment_method'] = 'How can I get money from customer?';
 $_['help_test'] = 'Use the live or testing (sandbox) gateway server to process transactions?';
 $_['help_total'] = 'The checkout total the order must reach before this payment method becomes active';
+$_['help_installment'] = 'Write the installment options separated by commas, ex: 2,3,4,5,6';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify payment IF Ziraatbank!';

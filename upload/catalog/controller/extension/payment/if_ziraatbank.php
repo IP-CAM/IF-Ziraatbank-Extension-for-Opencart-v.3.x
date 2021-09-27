@@ -40,6 +40,9 @@ class ControllerExtensionPaymentIfZiraatbank extends Controller
                         'currency_code' => $order_info['currency_code'],
                         'order_id'      => $orderId,
 
+                        // @todo bu kısım form'dan alınacak.
+                        // 'installment' => 10
+
                     ]
                 ]);
 
