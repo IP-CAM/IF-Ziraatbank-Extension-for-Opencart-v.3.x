@@ -6,66 +6,109 @@ class ControllerExtensionPaymentIfZiraatbank extends Controller
     {
         $this->load->language('extension/payment/if_ziraatbank');
 
-        $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-
-        $orderId = (int)$order_info['order_id'];
-
         $paymentMethod = $this->config->get('payment_if_ziraatbank_payment_method');
 
         $data['payment_method'] = $paymentMethod;
 
-        // if ($order_info['customer_id'] != 61) {
-        //return '<div class="text-center">Error: payment method not defined: ' . $paymentMethod . '</div>';
-        //}
-
-        switch ($paymentMethod) {
-
-            case '3D_PAY_HOSTING':
-
-                $responseObject = $this->curl_request('INIT', [
-                    'module'      => 'ZIRAATBANK',
-                    'method'      => $paymentMethod,
-                    'licence_key' => urlencode($this->config->get('payment_if_ziraatbank_licence_key')),
-                    'ok_url'      => urlencode($this->url->link('extension/payment/if_ziraatbank/callback', ['status' => 'ok'], true)),
-                    'fail_url'    => urlencode($this->url->link('extension/payment/if_ziraatbank/callback', ['status' => 'fail'], true)),
-                    'test'        => ( ! ! $this->config->get('payment_if_ziraatbank_test')),
-                    'extra_info'  => [
-                        'order_id' => $orderId
-                    ],
-                    'data'        => [
-
-                        'store_key'     => urlencode($this->config->get('payment_if_ziraatbank_store_key')),
-                        'lang_code'     => in_array($order_info['language_code'], ['tr', 'tr-tr', 'TR-tr']) ? 'tr' : 'en',
-                        'total'         => $order_info['total'],
-                        'currency_code' => $order_info['currency_code'],
-                        'order_id'      => $orderId,
-
-                        // @todo bu kısım form'dan alınacak.
-                        // 'installment' => 10
-
-                    ]
-                ]);
-
-                if ($responseObject === false) {
-                    return '<div class="text-center">Error: ödeme sistemi cevap vermiyor. Lütfen daha sonra tekrar deneyiniz.</div>';
-                }
-
-                if ($responseObject->type != 'form') {
-                    return '<div class="text-center">Error: ödeme sistemi hatalı işleme izin vermedi. Lütfen daha sonra tekrar deneyiniz.</div>';
-                }
-
-                $data['action'] = $responseObject->action;
-                $data['inputs'] = (array)$responseObject->inputs;
-
-                break;
-
-            default:
-
-                return '<div class="text-center">Error: payment method not defined: ' . $this->config->get('payment_if_ziraatbank_payment_method') . '</div>';
-
-        }
+        $data['ajax_url'] = $this->url->link('extension/payment/if_ziraatbank/ajax', [], true);
 
         return $this->load->view('extension/payment/if_ziraatbank', $data);
+    }
+
+    public function ajax()
+    {
+        try {
+
+            $this->load->model('checkout/order');
+
+            $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+
+            $orderId = (int)$order_info['order_id'];
+
+            $bank = $this->request->post['bank'];
+            $installment = $this->request->post['installment'];
+
+            $installmentCount = 0;
+
+            switch ($bank) {
+                case '1':
+                    $installmentCount = intval($installment);
+                    break;
+            }
+
+            $paymentMethod = $this->config->get('payment_if_ziraatbank_payment_method');
+
+            switch ($paymentMethod) {
+
+                case '3D_PAY_HOSTING':
+
+                    $responseObject = $this->curl_request('INIT', [
+                        'module'      => 'ZIRAATBANK',
+                        'method'      => $paymentMethod,
+                        'licence_key' => urlencode($this->config->get('payment_if_ziraatbank_licence_key')),
+                        'ok_url'      => urlencode($this->url->link('extension/payment/if_ziraatbank/callback', ['status' => 'ok'], true)),
+                        'fail_url'    => urlencode($this->url->link('extension/payment/if_ziraatbank/callback', ['status' => 'fail'], true)),
+                        'test'        => ( ! ! $this->config->get('payment_if_ziraatbank_test')),
+                        'extra_info'  => [
+                            'order_id' => $orderId
+                        ],
+                        'data'        => [
+
+                            'store_key'     => urlencode($this->config->get('payment_if_ziraatbank_store_key')),
+                            'lang_code'     => in_array($order_info['language_code'], ['tr', 'tr-tr', 'TR-tr']) ? 'tr' : 'en',
+                            'total'         => $order_info['total'],
+                            'currency_code' => $order_info['currency_code'],
+                            'order_id'      => $orderId,
+
+                            'installment' => $installmentCount
+
+                        ]
+                    ]);
+
+                    if ($responseObject === false) {
+                        throw new Exception('Error: ödeme sistemi cevap vermiyor. Lütfen daha sonra tekrar deneyiniz.');
+                    }
+
+                    if ($responseObject->type != 'form') {
+                        throw new Exception('Error: ödeme sistemi hatalı işleme izin vermedi. Lütfen daha sonra tekrar deneyiniz.');
+                    }
+
+                    $inputs = [];
+
+                    foreach ((array)$responseObject->inputs as $key => $value) {
+                        $inputs[] = '<input type="hidden" name="' . $key . '" value="' . $value . '" />';
+                    }
+
+                    $formHtml = '<form class="form-horizontal" method="post" action="' . $responseObject->action . '">
+        <fieldset id="payment">' . implode("\n", $inputs) . '</fieldset>
+        <div class="buttons">
+            <input type="submit" value="Ödeme Yap" id="button-confirmx" class="btn btn-primary" />
+        </div>
+    </form>';
+
+                    $this->response->addHeader('Content-Type: application/json');
+                    $this->response->setOutput(json_encode([
+                        'success'   => true,
+                        'form_html' => $formHtml,
+                    ]));
+
+                    break;
+
+                default:
+
+                    throw new Exception('Error: payment method not defined: ' . $this->config->get('payment_if_ziraatbank_payment_method'));
+
+            }
+
+        } catch (Exception $ex) {
+
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode([
+                'success' => false,
+                'message' => $ex->getMessage()
+            ]));
+
+        }
     }
 
     public function callback()

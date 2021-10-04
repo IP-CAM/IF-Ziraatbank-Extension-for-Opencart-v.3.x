@@ -1,14 +1,155 @@
 {% if payment_method == '3D_PAY_HOSTING' %}
-    <form class="form-horizontal" method="post" action="{{ action }}">
-        <fieldset id="payment">
-            {% for key, value in inputs %}
-                <input type="hidden" name="{{ key }}" value="{{ value }}" />
-            {% endfor %}
-        </fieldset>
-        <div class="buttons">
-            <div class="pull-right">
-                <input type="submit" value="{{ button_confirm }}" id="button-confirm" data-loading-text="{{ text_loading }}" class="btn btn-primary" />
-            </div>
-        </div>
-    </form>
+
+    <div class="form-group" id="div-bank">
+        <label for="select-bank">Ödemeyi hangi bankanın kredi kartı ile yapacaksınız?</label>
+        <select class="form-control" id="select-bank">
+            <option value="PLEASE_SELECT" selected>Lütfen Seçiniz</option>
+            <option value="1">Ziraatbank</option>
+            <option value="2">Diğer</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="div-installment">
+        <label for="select-installment">Taksit sayısı seçiniz</label>
+        <select class="form-control" id="select-installment">
+            <option value="PLEASE_SELECT" selected>Lütfen Seçiniz</option>
+            <option value="1">Tek Çekim</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </div>
+
+    <div id="div-error-result" class="alert alert-danger"></div>
+
+    <div class="buttons" id="div-buttons">
+        <input type="button" value="Devam Et" id="button-confirm" data-loading-text="{{ text_loading }}" class="btn btn-primary" />
+    </div>
+
+    <div id="form-html"></div>
+
+    <script>
+
+        var AJAX_URL = "{{ ajax_url }}"
+
+        $(function () {
+
+            var $selectBank = $('#select-bank')
+            var $selectInstallment = $('#select-installment')
+
+            var $divBank = $('#div-bank')
+            var $divInstallment = $('#div-installment')
+            var $divErrorResult = $('#div-error-result')
+            var $divButtons = $('#div-buttons')
+
+            var $buttonConfirm = $('#button-confirm')
+
+            var $formHtml = $('#form-html')
+
+            $divInstallment.hide()
+            $divButtons.hide()
+            $divErrorResult.hide()
+            $formHtml.hide()
+
+            function updateView() {
+
+                switch ($selectBank.val()) {
+
+                    case '1':
+
+                        $divInstallment.show()
+
+                        switch ($selectInstallment.val()) {
+
+                            case 'PLEASE_SELECT':
+
+                                $divButtons.hide()
+
+                                break
+
+                            default:
+
+                                $divButtons.show()
+
+                        }
+
+                        break
+
+                    case '2':
+
+                        $selectInstallment.val('PLEASE_SELECT')
+
+                        $divInstallment.hide()
+                        $divButtons.show()
+
+                        break
+
+                    default:
+
+                        $selectInstallment.val('PLEASE_SELECT')
+
+                        $divInstallment.hide()
+                        $divButtons.hide()
+
+                        break
+                }
+
+            }
+
+            $selectBank.change(function () {
+                updateView()
+            })
+
+            $divInstallment.change(function () {
+                updateView()
+            })
+
+            $buttonConfirm.click(function () {
+
+                $divErrorResult.hide()
+
+                var bank = $selectBank.val()
+                var installment = $selectInstallment.val()
+
+                $.post(AJAX_URL, {
+                    bank: bank,
+                    installment: installment
+                }, function (response) {
+
+                    if (response.success) {
+
+                        $formHtml.html(response.form_html)
+
+                        $divBank.remove()
+                        $divInstallment.remove()
+                        $divErrorResult.remove()
+                        $divButtons.remove()
+
+                        $formHtml.show()
+
+
+                    } else {
+
+                        $divErrorResult.text(response.message)
+                        $divErrorResult.show()
+
+                    }
+
+                }, 'json')
+
+            })
+
+        })
+    </script>
+
+{% else %}
+
+    <div class="alert alert-warning">Ödeme yöntemi aktif değil.</div>
+
 {% endif %}
